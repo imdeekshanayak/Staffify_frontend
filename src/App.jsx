@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard  from "./pages/Dashboard";
+// import Dashboard  from "./pages/Dashboard";
+
 
 import socket from "./socket";
+import Employees from "./pages/Employees";
 
 /* ============================
    Auth Helpers (temporary)
@@ -53,10 +55,20 @@ function App() {
         />
         <Route path="/register" element={<Register />} />
 
-        <Route path="/dashboard" element ={ 
+        {/* <Route path="/dashboard" element ={ 
           <Dashboard /> }
           
-          />
+          /> */}
+
+
+          <Route
+  path ="/employees"
+  element={
+    
+      <Employees />
+    
+  }
+/>
 
        
       </Routes>

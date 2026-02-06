@@ -17,6 +17,9 @@ function Sidebar(){
         <Link to="/dashboard/settings" className="block px-4 py-2 rounded hover:bg-blue-50">
           Settings
         </Link>
+        <Link to="/Employees" className="block px-4 py-2 rounded hover:bg-blue-50">
+          Employees
+        </Link>
       </nav>
     </aside>
   );
