@@ -44,14 +44,10 @@ function Sidebar() {
         <NavLink to="/employees" className={getNavLinkClass}>
           <Users size={18} />
           Employees
-<<<<<<< HEAD
-        </Link>
+        </NavLink>
         <Link to="/Leaves" className="block px-4 py-2 rounded hover:bg-blue-50">
           Leaves
         </Link>
-=======
-        </NavLink>
->>>>>>> 51887bc97a364338299269ac3ff39dc5ea12f4d2
       </nav>
 
       {/* Footer / Optional */}
