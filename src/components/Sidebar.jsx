@@ -20,6 +20,9 @@ function Sidebar(){
         <Link to="/Employees" className="block px-4 py-2 rounded hover:bg-blue-50">
           Employees
         </Link>
+        <Link to="/Leaves" className="block px-4 py-2 rounded hover:bg-blue-50">
+          Leaves
+        </Link>
       </nav>
     </aside>
   );

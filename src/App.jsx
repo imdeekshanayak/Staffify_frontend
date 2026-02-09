@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 // import Dashboard  from "./pages/Dashboard";
+import Leaves from "./pages/Leaves";
 
 
 import socket from "./socket";
+
 import Employees from "./pages/Employees";
 
 /* ============================
@@ -69,6 +71,16 @@ function App() {
     
   }
 />
+
+ <Route
+  path ="/leaves"
+  element={
+    
+      <Leaves />
+    
+  }
+/>
+
 
        
       </Routes>
