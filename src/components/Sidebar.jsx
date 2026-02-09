@@ -45,9 +45,9 @@ function Sidebar() {
           <Users size={18} />
           Employees
         </NavLink>
-        <Link to="/Leaves" className="block px-4 py-2 rounded hover:bg-blue-50">
+        <NavLink to="/Leaves" className="block px-4 py-2 rounded hover:bg-blue-50">
           Leaves
-        </Link>
+        </NavLink>
       </nav>
 
       {/* Footer / Optional */}
