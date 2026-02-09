@@ -1,20 +1,26 @@
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
-function DashboardLayout({children}){
-    return (
-        <div className="min-h-screen flex bg-gray-100">
+function DashboardLayout({ children }) {
+  return (
+    <div className="h-screen bg-gray-100">
+      {/* Fixed Sidebar */}
       <Sidebar />
 
-      <div className="flex-1 flex flex-col">
-        <Navbar />
+      {/* Main Content Area */}
+      <div className="ml-64 h-screen flex flex-col">
+        {/* Top Navbar */}
+        <div className="shrink-0">
+          <Navbar />
+        </div>
 
-        <main className="p-6">
+        {/* Scrollable Page Content */}
+        <main className="flex-1 overflow-y-auto p-6">
           {children}
         </main>
       </div>
     </div>
-    )
+  );
 }
 
 export default DashboardLayout;

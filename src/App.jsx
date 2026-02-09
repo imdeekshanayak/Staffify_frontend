@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-// import Dashboard  from "./pages/Dashboard";
+import Dashboard  from "./pages/Dashboard";
 import Leaves from "./pages/Leaves";
-
-
+import Teams from "./pages/Teams"
+import TeamDetails from "./pages/TeamDetails";
+import Attendance from "./pages/Attendance";
 import socket from "./socket";
 
 import Employees from "./pages/Employees";
@@ -57,10 +58,10 @@ function App() {
         />
         <Route path="/register" element={<Register />} />
 
-        {/* <Route path="/dashboard" element ={ 
+        <Route path="/dashboard" element ={ 
           <Dashboard /> }
           
-          /> */}
+          />
 
 
           <Route
@@ -80,6 +81,19 @@ function App() {
     
   }
 />
+
+ <Route
+  path ="/teams"
+  element={
+    
+      <Teams />
+    
+  }
+/>
+
+        <Route path="/teams/:teamId" element={<TeamDetails />} />
+
+          <Route path="attendance" element={<Attendance />} />
 
 
        
