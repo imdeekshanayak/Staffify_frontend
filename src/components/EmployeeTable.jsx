@@ -12,6 +12,7 @@ function EmployeeTable({ employees = [], onEdit, onDelete }) {
       <table className="min-w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
+            <th className="px-6 py-3 text-left">S.No</th>
             <th className="px-6 py-3 text-left">Employee ID</th>
             <th className="px-6 py-3 text-left">Name</th>
             <th className="px-6 py-3 text-left">Email</th>
@@ -23,8 +24,14 @@ function EmployeeTable({ employees = [], onEdit, onDelete }) {
         </thead>
 
         <tbody className="divide-y">
-          {employees.map((emp) => (
+          {employees.map((emp, index) => (
             <tr key={emp.employeeId} className="hover:bg-gray-50">
+              
+              {/* S.No */}
+              <td className="px-6 py-4 font-medium text-gray-700">
+                {index + 1}
+              </td>
+
               <td className="px-6 py-4 font-medium text-gray-700">
                 {emp.employeeId}
               </td>
@@ -61,6 +68,7 @@ function EmployeeTable({ employees = [], onEdit, onDelete }) {
                   Delete
                 </button>
               </td>
+
             </tr>
           ))}
         </tbody>

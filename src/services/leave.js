@@ -1,28 +1,41 @@
 import api from "./api";
 
-
+/* =============================
+   GET ALL LEAVES
+============================= */
 export const getLeaves = async () => {
   const res = await api.get("/getLeaves");
-  return res.data;
+  return res.data.data;   // return only array
 };
 
-export const getLeaveById = async (id) => {
-  const res = await api.get(`/getLeave/:id/${id}`);
-  return res.data;
-};
-
-
+/* =============================
+   APPLY LEAVE
+============================= */
 export const createLeave = async (leaveData) => {
-  const res = await api.post("/createLeave", leaveData);
+  const res = await api.post("/applyLeave", leaveData);
   return res.data;
 };
 
-export const updateLeave = async (id, leaveData) => {
-  const res = await api.put(`/updateLeave/${id}`, leaveData);
+/* =============================
+   UPDATE LEAVE (Approve/Reject)
+============================= */
+export const updateLeave = async (leaveId, status, approvedBy) => {
+  const res = await api.post("/updateLeave", {
+    leaveId,
+    status,
+    approvedBy
+  });
+
   return res.data;
 };
 
-export const deleteLeave = async (id) => {
-  const res = await api.delete(`/deleteLeave/${id}`);
+/* =============================
+   DELETE LEAVE
+============================= */
+export const deleteLeave = async (leaveId) => {
+  const res = await api.post("/deleteLeave", {
+    leaveId
+  });
+
   return res.data;
 };

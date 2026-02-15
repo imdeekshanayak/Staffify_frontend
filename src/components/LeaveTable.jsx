@@ -1,9 +1,18 @@
-function LeaveTable({ leaves, onApprove, onReject, onDelete }) {
+function LeaveTable({ leaves = [], onApprove, onReject, onDelete }) {
+  if (!Array.isArray(leaves) || leaves.length === 0) {
+    return (
+      <div className="bg-white border rounded-xl p-6 text-center text-gray-500">
+        No leave requests found.
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white border rounded-xl overflow-hidden">
       <table className="min-w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
+            <th className="px-6 py-3 text-left">S.No</th>
             <th className="px-6 py-3 text-left">Employee</th>
             <th className="px-6 py-3 text-left">Type</th>
             <th className="px-6 py-3 text-left">From</th>
@@ -15,64 +24,81 @@ function LeaveTable({ leaves, onApprove, onReject, onDelete }) {
         </thead>
 
         <tbody className="divide-y">
-          {leaves.length === 0 ? (
-            <tr>
-              <td colSpan="7" className="px-6 py-10 text-center text-gray-500">
-                No leave requests found
+          {leaves.map((leave, index) => (
+            <tr
+              key={leave.leaveId || leave._id || index}
+              className="hover:bg-gray-50"
+            >
+              <td className="px-6 py-4">{index + 1}</td>
+
+              <td className="px-6 py-4 font-medium">
+                {leave.employeeName}
+              </td>
+
+              <td className="px-6 py-4 capitalize">
+                {leave.leaveType}
+              </td>
+
+              <td className="px-6 py-4">
+                {leave.fromDate
+                  ? new Date(leave.fromDate).toLocaleDateString()
+                  : "-"}
+              </td>
+
+              <td className="px-6 py-4">
+                {leave.toDate
+                  ? new Date(leave.toDate).toLocaleDateString()
+                  : "-"}
+              </td>
+
+              <td className="px-6 py-4">
+                {leave.reason}
+              </td>
+
+              <td className="px-6 py-4">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    leave.status === "Approved"
+                      ? "bg-green-100 text-green-700"
+                      : leave.status === "Rejected"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {leave.status || "Pending"}
+                </span>
+              </td>
+
+              <td className="px-6 py-4 space-x-2">
+                {leave.status === "Pending" && (
+                  <>
+                    <button
+                      onClick={() => onApprove(leave)}
+                      className="text-green-600 text-xs hover:underline"
+                    >
+                      Approve
+                    </button>
+
+                    <button
+                      onClick={() => onReject(leave)}
+                      className="text-red-600 text-xs hover:underline"
+                    >
+                      Reject
+                    </button>
+                  </>
+                )}
+
+                <button
+                  onClick={() =>
+                    onDelete(leave.leaveId || leave._id)
+                  }
+                  className="text-gray-500 text-xs hover:underline"
+                >
+                  Delete
+                </button>
               </td>
             </tr>
-          ) : (
-            leaves.map((leave) => (
-              <tr key={leave._id || leave.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">{leave.employeeName}</td>
-                <td className="px-6 py-4">{leave.leaveType}</td>
-                <td className="px-6 py-4">{leave.fromDate}</td>
-                <td className="px-6 py-4">{leave.toDate}</td>
-                <td className="px-6 py-4">{leave.reason}</td>
-
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium
-                      ${
-                        leave.status === "Approved"
-                          ? "bg-green-100 text-green-700"
-                          : leave.status === "Rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                  >
-                    {leave.status}
-                  </span>
-                </td>
-
-                <td className="px-6 py-4 space-x-2">
-                  {leave.status === "Pending" && (
-                    <>
-                      <button
-                        onClick={() => onApprove(leave)}
-                        className="text-green-600 text-xs"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => onReject(leave)}
-                        className="text-red-600 text-xs"
-                      >
-                        Reject
-                      </button>
-                    </>
-                  )}
-
-                  <button
-                    onClick={() => onDelete(leave._id || leave.id)}
-                    className="text-gray-500 text-xs"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
+          ))}
         </tbody>
       </table>
     </div>

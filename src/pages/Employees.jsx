@@ -10,11 +10,19 @@ import {
 
 function Employees() {
   const [employees, setEmployees] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
   const [error, setError] = useState("");
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [showFilter, setShowFilter] = useState(false);
+
+  const [filters, setFilters] = useState({
+    department: "",
+    status: "",
+  });
 
   const initialForm = {
     name: "",
@@ -27,15 +35,18 @@ function Employees() {
 
   const [formData, setFormData] = useState(initialForm);
 
-  // 🔹 Fetch Employees
+  /* =============================
+     FETCH EMPLOYEES
+  ============================= */
   const fetchEmployees = async () => {
     try {
+      setPageLoading(true);
       const data = await getEmployees();
       setEmployees(data);
-    } catch (err) {
+    } catch {
       setError("Failed to load employees");
     } finally {
-      setLoading(false);
+      setPageLoading(false);
     }
   };
 
@@ -43,13 +54,33 @@ function Employees() {
     fetchEmployees();
   }, []);
 
+  /* =============================
+     FILTER LOGIC
+  ============================= */
+  const filteredEmployees = employees.filter((emp) => {
+    const departmentMatch =
+      !filters.department || emp.department === filters.department;
+
+    const statusMatch =
+      !filters.status || String(emp.isActive) === filters.status;
+
+    return departmentMatch && statusMatch;
+  });
+
+  /* =============================
+     INPUT CHANGE
+  ============================= */
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Save
+  /* =============================
+     SAVE (CREATE / UPDATE)
+  ============================= */
   const handleSave = async () => {
     try {
+      setActionLoading(true);
+
       if (editingId) {
         await updateEmployee(editingId, formData);
       } else {
@@ -60,34 +91,43 @@ function Employees() {
       setShowForm(false);
       setEditingId(null);
       setFormData(initialForm);
-    } catch (err) {
+    } catch {
       setError("Failed to save employee");
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  // 🔹 Edit
+  /* =============================
+     EDIT
+  ============================= */
   const handleEdit = (employee) => {
     setFormData(employee);
-    setEditingId(employee.employeeId);   // 🔥 important
+    setEditingId(employee.employeeId);
     setShowForm(true);
   };
 
-  // 🔹 Delete
+  /* =============================
+     DELETE
+  ============================= */
   const handleDelete = async (employeeId) => {
     if (!window.confirm("Are you sure you want to delete this employee?"))
       return;
 
     try {
+      setDeleteLoadingId(employeeId);
       await deleteEmployee(employeeId);
       await fetchEmployees();
-    } catch (err) {
+    } catch {
       setError("Failed to delete employee");
+    } finally {
+      setDeleteLoadingId(null);
     }
   };
 
   return (
     <DashboardLayout>
-      {/* Header */}
+      {/* ================= HEADER ================= */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold">Employee Directory</h1>
@@ -96,31 +136,99 @@ function Employees() {
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setShowForm(true);
-            setEditingId(null);
-            setFormData(initialForm);
-          }}
-          className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700"
-        >
-          + Add Employee
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Filter Button */}
+          <button 
+            onClick={() => setShowFilter(!showFilter)}
+            className=" bg-purple-600  text-white border px-4 py-2 rounded-md text-sm hover:bg-purple-700"
+          >
+            Filter
+          </button>
+
+          {/* Add Employee */}
+          <button
+            onClick={() => {
+              setShowForm(true);
+              setEditingId(null);
+              setFormData(initialForm);
+            }}
+            className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700"
+          >
+            + Add Employee
+          </button>
+        </div>
       </div>
 
-      {loading && <p>Loading employees...</p>}
+      {/* ================= FILTER PANEL ================= */}
+      {showFilter && (
+        <div className="bg-white border rounded-xl p-6 mb-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4">Filter Employees</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Department Filter */}
+            <select
+              value={filters.department}
+              onChange={(e) =>
+                setFilters({ ...filters, department: e.target.value })
+              }
+              className="border px-3 py-2 rounded-md"
+            >
+              <option value="">All Departments</option>
+              {[...new Set(employees.map((emp) => emp.department))].map(
+                (dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                )
+              )}
+            </select>
+
+            {/* Status Filter */}
+            <select
+              value={filters.status}
+              onChange={(e) =>
+                setFilters({ ...filters, status: e.target.value })
+              }
+              className="border px-3 py-2 rounded-md"
+            >
+              <option value="">All Status</option>
+              <option value="true">Active</option>
+              <option value="false">Inactive</option>
+            </select>
+
+            {/* Clear Filters */}
+            <button
+              onClick={() =>
+                setFilters({ department: "", status: "" })
+              }
+              className="border px-4 py-2 rounded-md hover:bg-gray-50"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ================= PAGE LOADER ================= */}
+      {pageLoading && (
+        <div className="flex justify-center py-10">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600"></div>
+        </div>
+      )}
+
       {error && <p className="text-red-600">{error}</p>}
 
-      {/* ✅ Only ONE table */}
-      {!loading && !error && (
+      {/* ================= TABLE ================= */}
+      {!pageLoading && !error && (
         <EmployeeTable
-          employees={employees}
+          employees={filteredEmployees}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          deleteLoadingId={deleteLoadingId}
         />
       )}
 
-      {/* Form */}
+      {/* ================= FORM ================= */}
       {showForm && (
         <div className="bg-white border rounded-xl p-6 mt-6 shadow-sm">
           <h2 className="text-lg font-semibold mb-4">
@@ -184,15 +292,21 @@ function Employees() {
             <button
               onClick={() => setShowForm(false)}
               className="px-4 py-2 border rounded-md"
+              disabled={actionLoading}
             >
               Cancel
             </button>
 
             <button
               onClick={handleSave}
+              disabled={actionLoading}
               className="px-4 py-2 bg-purple-600 text-white rounded-md"
             >
-              {editingId ? "Update" : "Save"}
+              {actionLoading
+                ? "Processing..."
+                : editingId
+                ? "Update"
+                : "Save"}
             </button>
           </div>
         </div>
