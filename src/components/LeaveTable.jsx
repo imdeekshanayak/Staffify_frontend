@@ -8,52 +8,42 @@ function LeaveTable({ leaves = [], onApprove, onReject, onDelete }) {
   }
 
   return (
-    <div className="bg-white border rounded-xl overflow-hidden">
+    <div className="bg-white border rounded-xl overflow-x-auto">
       <table className="min-w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
-            <th className="px-6 py-3 text-left">S.No</th>
-            <th className="px-6 py-3 text-left">Employee</th>
-            <th className="px-6 py-3 text-left">Type</th>
-            <th className="px-6 py-3 text-left">From</th>
-            <th className="px-6 py-3 text-left">To</th>
-            <th className="px-6 py-3 text-left">Reason</th>
-            <th className="px-6 py-3 text-left">Status</th>
-            <th className="px-6 py-3 text-left">Actions</th>
+            <th className="px-6 py-3">S.No</th>
+            <th className="px-6 py-3">Employee</th>
+            <th className="px-6 py-3">Type</th>
+            <th className="px-6 py-3">From</th>
+            <th className="px-6 py-3">To</th>
+            <th className="px-6 py-3">Reason</th>
+            <th className="px-6 py-3">Status</th>
+            <th className="px-6 py-3">Actions</th>
           </tr>
         </thead>
 
         <tbody className="divide-y">
           {leaves.map((leave, index) => (
-            <tr
-              key={leave.leaveId || leave._id || index}
-              className="hover:bg-gray-50"
-            >
+            <tr key={leave.leaveId} className="hover:bg-gray-50">
               <td className="px-6 py-4">{index + 1}</td>
-
               <td className="px-6 py-4 font-medium">
                 {leave.employeeName}
               </td>
-
               <td className="px-6 py-4 capitalize">
                 {leave.leaveType}
               </td>
-
               <td className="px-6 py-4">
                 {leave.fromDate
                   ? new Date(leave.fromDate).toLocaleDateString()
                   : "-"}
               </td>
-
               <td className="px-6 py-4">
                 {leave.toDate
                   ? new Date(leave.toDate).toLocaleDateString()
                   : "-"}
               </td>
-
-              <td className="px-6 py-4">
-                {leave.reason}
-              </td>
+              <td className="px-6 py-4">{leave.reason}</td>
 
               <td className="px-6 py-4">
                 <span
@@ -65,7 +55,7 @@ function LeaveTable({ leaves = [], onApprove, onReject, onDelete }) {
                       : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
-                  {leave.status || "Pending"}
+                  {leave.status}
                 </span>
               </td>
 
@@ -78,7 +68,6 @@ function LeaveTable({ leaves = [], onApprove, onReject, onDelete }) {
                     >
                       Approve
                     </button>
-
                     <button
                       onClick={() => onReject(leave)}
                       className="text-red-600 text-xs hover:underline"
@@ -89,9 +78,7 @@ function LeaveTable({ leaves = [], onApprove, onReject, onDelete }) {
                 )}
 
                 <button
-                  onClick={() =>
-                    onDelete(leave.leaveId || leave._id)
-                  }
+                  onClick={() => onDelete(leave.leaveId)}
                   className="text-gray-500 text-xs hover:underline"
                 >
                   Delete

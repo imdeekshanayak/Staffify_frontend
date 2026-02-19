@@ -10,25 +10,38 @@ import {
 import LeaveTable from "../components/LeaveTable";
 
 /* ===============================
-   Helper: derive display name from email
-   e.g. "john.doe@company.com" → "John Doe"
+   Helper: derive display name
 =============================== */
 const getNameFromEmail = (email) => {
   if (!email) return "User";
-  const localPart = email.split("@")[0];
-  return localPart
+  return email
+    .split("@")[0]
     .split(/[._-]/)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .map(
+      (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
     .join(" ");
 };
 
+/* ===============================
+   Normalize API data
+=============================== */
+const normalizeLeaves = (rawLeaves = []) =>
+  rawLeaves.map((leave) => ({
+    _id: leave._id,
+    leaveId: leave.leaveId || leave._id,
+    employeeName: leave.employeeName || "Unknown",
+    leaveType: (leave.leaveType || "paid").toLowerCase(),
+    fromDate: leave.fromDate || null,
+    toDate: leave.toDate || null,
+    reason: leave.reason || "-",
+    status: leave.status || "Pending",
+    createdAt: leave.createdAt,
+  }));
+
 function Leaves() {
   const { user } = useAuth();
-
-  // Derive a display name: prefer user.name, fallback to email-derived name
   const employeeName = user?.name || getNameFromEmail(user?.email);
-
-  console.log("Logged In User:", user, "Display Name:", employeeName);
 
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,11 +64,13 @@ function Leaves() {
   const fetchLeaves = async () => {
     try {
       setLoading(true);
-      const res = await getLeaves();
 
-      // 🔥 Your backend returns { message, data }
-      setLeaves(res.data || []);
+      const rawLeaves = await getLeaves(); // ✅ ARRAY directly
+      const normalized = normalizeLeaves(rawLeaves);
+
+      setLeaves(normalized);
     } catch (err) {
+      console.error("Fetch Leaves Error:", err);
       setError("Unable to load leave requests");
     } finally {
       setLoading(false);
@@ -77,14 +92,22 @@ function Leaves() {
      APPLY LEAVE
   ============================= */
   const handleApplyLeave = async () => {
-    if (!user) return;
+    if (!formData.fromDate || !formData.toDate) {
+      alert("Please select From and To dates");
+      return;
+    }
+
+    if (new Date(formData.fromDate) > new Date(formData.toDate)) {
+      alert("From date cannot be after To date");
+      return;
+    }
 
     try {
       setActionLoading(true);
 
       await createLeave({
-        employeeId: user.userId,
-        employeeName: employeeName,
+        employeeId: user?.userId,
+        employeeName,
         leaveType: formData.leaveType,
         fromDate: formData.fromDate,
         toDate: formData.toDate,
@@ -102,44 +125,28 @@ function Leaves() {
   };
 
   /* =============================
-     APPROVE
+     APPROVE / REJECT / DELETE
   ============================= */
   const handleApprove = async (leave) => {
-    try {
-      setActionLoading(true);
-      await updateLeave(leave.leaveId, "Approved", employeeName);
-      await fetchLeaves();
-    } finally {
-      setActionLoading(false);
-    }
+    setActionLoading(true);
+    await updateLeave(leave.leaveId, "Approved", employeeName);
+    await fetchLeaves();
+    setActionLoading(false);
   };
 
-  /* =============================
-     REJECT
-  ============================= */
   const handleReject = async (leave) => {
-    try {
-      setActionLoading(true);
-      await updateLeave(leave.leaveId, "Rejected", employeeName);
-      await fetchLeaves();
-    } finally {
-      setActionLoading(false);
-    }
+    setActionLoading(true);
+    await updateLeave(leave.leaveId, "Rejected", employeeName);
+    await fetchLeaves();
+    setActionLoading(false);
   };
 
-  /* =============================
-     DELETE
-  ============================= */
   const handleDelete = async (leaveId) => {
     if (!window.confirm("Delete this leave request?")) return;
-
-    try {
-      setActionLoading(true);
-      await deleteLeave(leaveId);
-      await fetchLeaves();
-    } finally {
-      setActionLoading(false);
-    }
+    setActionLoading(true);
+    await deleteLeave(leaveId);
+    await fetchLeaves();
+    setActionLoading(false);
   };
 
   return (
@@ -161,13 +168,12 @@ function Leaves() {
         </button>
       </div>
 
-      {/* APPLY FORM */}
+      {/* Apply Form */}
       {showForm && (
         <div className="bg-white border rounded-xl p-6 mb-6">
           <h2 className="text-lg font-semibold mb-4">Apply Leave</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Employee Name (Auto Filled) */}
             <input
               value={employeeName}
               disabled
@@ -183,7 +189,6 @@ function Leaves() {
               <option value="paid">Paid Leave</option>
               <option value="sick">Sick Leave</option>
               <option value="casual">Casual Leave</option>
-              <option value="halfDay">Half Day</option>
             </select>
 
             <input
@@ -207,7 +212,7 @@ function Leaves() {
               placeholder="Reason"
               value={formData.reason}
               onChange={handleChange}
-              className="border rounded-md px-3 py-2"
+              className="border rounded-md px-3 py-2 md:col-span-2"
             />
           </div>
 
@@ -230,19 +235,17 @@ function Leaves() {
         </div>
       )}
 
-      {/* LOADING */}
       {loading && (
-        <div className="text-center py-10">
-          <p className="text-gray-500">Loading leave requests...</p>
+        <div className="text-center py-8 text-gray-500">
+          Loading leave requests...
         </div>
       )}
 
       {error && <p className="text-red-600">{error}</p>}
 
-      {/* TABLE */}
       {!loading && !error && (
         <LeaveTable
-          leaves={Array.isArray(leaves) ? leaves : []}
+          leaves={leaves}
           onApprove={handleApprove}
           onReject={handleReject}
           onDelete={handleDelete}
