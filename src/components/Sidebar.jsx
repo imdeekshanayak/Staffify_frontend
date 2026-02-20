@@ -99,7 +99,7 @@ function Sidebar() {
             Account
           </p>
 
-          <NavLink to="/dashboard/profile" className={getNavLinkClass}>
+          <NavLink to="/profile" className={getNavLinkClass}>
             <User size={18} />
             Profile
           </NavLink>

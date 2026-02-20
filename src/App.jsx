@@ -11,6 +11,7 @@ import Attendance from "./pages/Attendance";
 import socket from "./socket";
 
 import Employees from "./pages/Employees";
+import Profile from "./pages/Profile"
 
 /* ============================
    Auth Helpers (temporary)
@@ -78,6 +79,15 @@ function App() {
   element={
     
       <Leaves />
+    
+  }
+/>
+
+ <Route
+  path ="/profile"
+  element={
+    
+      <Profile />
     
   }
 />
